@@ -19,6 +19,14 @@ import {
   Security as SecurityIcon
 } from '@mui/icons-material';
 
+// Static data for dashboard statistics
+const DEMO_STATS = {
+  totalTransactions: 1254,
+  fraudDetected: 37,
+  averageRiskScore: 0.18,
+  highRiskTransactions: 42
+};
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const theme = useTheme();
@@ -37,16 +45,75 @@ const Dashboard = () => {
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
           <SecurityIcon sx={{ fontSize: 40, mr: 2, color: theme.palette.primary.main }} />
           <Typography variant="h4" component="h1" fontWeight="bold">
-            Financial Fraud Detection System
+            FinSentinal System
           </Typography>
         </Box>
         <Typography variant="h6" sx={{ mb: 2, color: theme.palette.text.secondary }}>
           Choose how you want to analyze transactions for potential fraud
         </Typography>
-        <Typography variant="body1" sx={{ mb: 1 }}>
+        <Typography variant="body1" sx={{ mb: 3 }}>
           Our advanced AI-powered system uses multiple models to detect fraudulent activities in financial transactions.
           Select one of the options below to get started.
         </Typography>
+        
+        {/* Demo Stats */}
+        <Grid container spacing={3} sx={{ mt: 1 }}>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card sx={{ borderRadius: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+              <CardContent>
+                <Typography color="text.secondary" gutterBottom>Total Transactions</Typography>
+                <Typography variant="h4" component="div" fontWeight="bold">
+                  {DEMO_STATS.totalTransactions}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  Processed in the last 30 days
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          
+          <Grid item xs={12} sm={6} md={3}>
+            <Card sx={{ borderRadius: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+              <CardContent>
+                <Typography color="text.secondary" gutterBottom>Fraud Detected</Typography>
+                <Typography variant="h4" component="div" fontWeight="bold" sx={{ color: theme.palette.error.main }}>
+                  {DEMO_STATS.fraudDetected}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  High-risk transactions flagged
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          
+          <Grid item xs={12} sm={6} md={3}>
+            <Card sx={{ borderRadius: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+              <CardContent>
+                <Typography color="text.secondary" gutterBottom>Average Risk Score</Typography>
+                <Typography variant="h4" component="div" fontWeight="bold" sx={{ color: theme.palette.warning.main }}>
+                  {(DEMO_STATS.averageRiskScore * 100).toFixed(1)}%
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  Across all transactions
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          
+          <Grid item xs={12} sm={6} md={3}>
+            <Card sx={{ borderRadius: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+              <CardContent>
+                <Typography color="text.secondary" gutterBottom>High Risk</Typography>
+                <Typography variant="h4" component="div" fontWeight="bold" sx={{ color: theme.palette.warning.dark }}>
+                  {DEMO_STATS.highRiskTransactions}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  Transactions requiring review
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
       </Paper>
 
       <Grid container spacing={4}>

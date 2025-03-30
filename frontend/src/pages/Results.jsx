@@ -33,7 +33,93 @@ import {
   ResponsiveContainer
 } from 'recharts';
 
-const Results = ({ results }) => {
+// Demo data for static demonstration
+const DEMO_RESULTS = [
+  {
+    id: 1,
+    fraud_probability: 0.82,
+    compliance_risk: 0.75,
+    behavior_anomaly: 0.68,
+    overall_risk: 0.78,
+    timestamp: "2023-06-15T14:32:45",
+    transaction_amount: 15000,
+    transaction_text: "International wire transfer to offshore account",
+    details: {
+      fraud: 0.82,
+      compliance: [0.25, 0.75],
+      behavior: 0.68,
+      network: 0.65
+    }
+  },
+  {
+    id: 2,
+    fraud_probability: 0.15,
+    compliance_risk: 0.22,
+    behavior_anomaly: 0.18,
+    overall_risk: 0.17,
+    timestamp: "2023-06-15T15:10:22",
+    transaction_amount: 350.50,
+    transaction_text: "Regular monthly payment to vendor",
+    details: {
+      fraud: 0.15,
+      compliance: [0.78, 0.22],
+      behavior: 0.18,
+      network: 0.12
+    }
+  },
+  {
+    id: 3,
+    fraud_probability: 0.45,
+    compliance_risk: 0.58,
+    behavior_anomaly: 0.62,
+    overall_risk: 0.52,
+    timestamp: "2023-06-15T16:05:11",
+    transaction_amount: 4200,
+    transaction_text: "New recipient payment with unusual amount",
+    details: {
+      fraud: 0.45,
+      compliance: [0.42, 0.58],
+      behavior: 0.62,
+      network: 0.48
+    }
+  },
+  {
+    id: 4,
+    fraud_probability: 0.08,
+    compliance_risk: 0.12,
+    behavior_anomaly: 0.05,
+    overall_risk: 0.08,
+    timestamp: "2023-06-15T16:45:30",
+    transaction_amount: 125.75,
+    transaction_text: "Regular subscription payment",
+    details: {
+      fraud: 0.08,
+      compliance: [0.88, 0.12],
+      behavior: 0.05,
+      network: 0.06
+    }
+  },
+  {
+    id: 5,
+    fraud_probability: 0.92,
+    compliance_risk: 0.85,
+    behavior_anomaly: 0.78,
+    overall_risk: 0.88,
+    timestamp: "2023-06-15T17:22:18",
+    transaction_amount: 25000,
+    transaction_text: "Large transfer to newly created account in high-risk jurisdiction",
+    details: {
+      fraud: 0.92,
+      compliance: [0.15, 0.85],
+      behavior: 0.78,
+      network: 0.88
+    }
+  }
+];
+
+const Results = ({ results = [] }) => {
+  // Use demo data if no results are provided
+  const displayResults = results.length > 0 ? results : DEMO_RESULTS;
   const theme = useTheme();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -45,23 +131,23 @@ const Results = ({ results }) => {
     averageRisk: 0,
   });
 
-  // Calculate statistics when results change
+  // Calculate statistics when displayResults change
   useEffect(() => {
-    if (results.length > 0) {
-      const highRisk = results.filter(r => r.overall_risk >= 0.7).length;
-      const mediumRisk = results.filter(r => r.overall_risk >= 0.3 && r.overall_risk < 0.7).length;
-      const lowRisk = results.filter(r => r.overall_risk < 0.3).length;
-      const avgRisk = results.reduce((acc, r) => acc + r.overall_risk, 0) / results.length;
+    if (displayResults.length > 0) {
+      const highRisk = displayResults.filter(r => r.overall_risk >= 0.7).length;
+      const mediumRisk = displayResults.filter(r => r.overall_risk >= 0.3 && r.overall_risk < 0.7).length;
+      const lowRisk = displayResults.filter(r => r.overall_risk < 0.3).length;
+      const avgRisk = displayResults.reduce((acc, r) => acc + r.overall_risk, 0) / displayResults.length;
       
       setStats({
-        totalTransactions: results.length,
+        totalTransactions: displayResults.length,
         highRiskCount: highRisk,
         mediumRiskCount: mediumRisk,
         lowRiskCount: lowRisk,
         averageRisk: avgRisk,
       });
     }
-  }, [results]);
+  }, [displayResults]);
 
   // Handle page change
   const handleChangePage = (event, newPage) => {
@@ -101,7 +187,7 @@ const Results = ({ results }) => {
   ];
 
   // Prepare data for bar chart
-  const barChartData = results.slice(0, 10).map(result => ({
+  const barChartData = displayResults.slice(0, 10).map(result => ({
     name: formatDate(result.timestamp).split(',')[1].trim(),
     fraud: parseFloat((result.fraud_probability * 100).toFixed(1)),
     compliance: parseFloat((result.compliance_risk * 100).toFixed(1)),
@@ -128,11 +214,9 @@ const Results = ({ results }) => {
         </Typography>
       </Paper>
 
-      {results.length === 0 ? (
-        <Alert severity="info" sx={{ mt: 2 }}>
-          No transaction results available. Process some transactions to see results here.
-        </Alert>
-      ) : (
+      {
+        // Always show results UI, using demo data if no actual results
+        (
         <>
           {/* Statistics Cards */}
           <Grid container spacing={3} sx={{ mb: 4 }}>
@@ -262,7 +346,7 @@ const Results = ({ results }) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {results
+                  {displayResults
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((result, index) => (
                       <TableRow key={index} hover>
@@ -360,7 +444,7 @@ const Results = ({ results }) => {
             <TablePagination
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={results.length}
+              count={displayResults.length}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={handleChangePage}

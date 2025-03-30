@@ -57,100 +57,69 @@ const MainLayout = () => {
         }}
       >
         <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2 }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography 
-            variant="h6" 
+          {isMobile && (
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              edge="start"
+              onClick={handleDrawerToggle}
+              sx={{ mr: 2 }}
+            >
+              <MenuIcon />
+            </IconButton>
+          )}
+          <Typography
+            variant="h6"
+            noWrap
             component="div" 
             sx={{ 
-              flexGrow: 1,
               fontWeight: 'bold',
-              letterSpacing: '0.5px'
+              letterSpacing: '0.5px',
+              mr: 4
             }}
             className="gradient-text"
           >
-            Financial Fraud Detection
+            FinSentinal
           </Typography>
+          
+          {/* Horizontal Navigation */}
+          {!isMobile && (
+            <Box sx={{ display: 'flex', flexGrow: 1 }}>
+              {menuItems.map((item) => (
+                <Button
+                  key={item.text}
+                  color="inherit"
+                  startIcon={item.icon}
+                  onClick={() => navigate(item.path)}
+                  sx={{
+                    mx: 1,
+                    py: 1,
+                    borderRadius: 1,
+                    textTransform: 'none',
+                    fontWeight: location.pathname === item.path ? 600 : 400,
+                    backgroundColor: location.pathname === item.path ? 
+                      'rgba(76, 175, 80, 0.1)' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: 'rgba(76, 175, 80, 0.05)',
+                    },
+                  }}
+                >
+                  {item.text}
+                </Button>
+              ))}
+            </Box>
+          )}
         </Toolbar>
       </AppBar>
 
-      <Drawer
-        variant={isMobile ? 'temporary' : 'persistent'}
-        open={isMobile ? drawerOpen : true}
-        onClose={isMobile ? handleDrawerToggle : undefined}
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          '& .MuiDrawer-paper': {
-            width: drawerWidth,
-            boxSizing: 'border-box',
-            background: theme.palette.background.paper,
-            borderRight: `1px solid ${theme.palette.divider}`,
-          },
-        }}
-      >
-        <Toolbar />
-        <Box sx={{ overflow: 'auto', mt: 2 }}>
-          {isMobile && (
-            <IconButton onClick={handleDrawerToggle} sx={{ ml: 1, mb: 1 }}>
-              <ChevronLeftIcon />
-            </IconButton>
-          )}
-          <List>
-            {menuItems.map((item) => (
-              <ListItem 
-                button 
-                key={item.text} 
-                onClick={() => {
-                  navigate(item.path);
-                  if (isMobile) setDrawerOpen(false);
-                }}
-                sx={{
-                  backgroundColor: location.pathname === item.path ? 
-                    'rgba(76, 175, 80, 0.1)' : 'transparent',
-                  borderLeft: location.pathname === item.path ? 
-                    `4px solid ${theme.palette.primary.main}` : '4px solid transparent',
-                  '&:hover': {
-                    backgroundColor: 'rgba(76, 175, 80, 0.05)',
-                  },
-                  py: 1.5,
-                  px: 2,
-                }}
-              >
-                <ListItemIcon sx={{ 
-                  color: location.pathname === item.path ? 
-                    theme.palette.primary.main : theme.palette.text.secondary 
-                }}>
-                  {item.icon}
-                </ListItemIcon>
-                <ListItemText 
-                  primary={item.text} 
-                  primaryTypographyProps={{
-                    fontWeight: location.pathname === item.path ? 600 : 400,
-                    color: location.pathname === item.path ? 
-                      theme.palette.primary.main : theme.palette.text.primary
-                  }}
-                />
-              </ListItem>
-            ))}
-          </List>
-        </Box>
-      </Drawer>
+      {/* Sidebar drawer removed as requested */}
 
       <Box
         component="main"
         sx={{
           flexGrow: 1,
           p: 3,
-          width: { md: `calc(100% - ${drawerWidth}px)` },
-          ml: { md: `${drawerWidth}px` },
+          width: '100%',
           mt: '64px',
           minHeight: 'calc(100vh - 64px)',
           background: theme.palette.background.default,
