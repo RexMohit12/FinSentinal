@@ -39,3 +39,10 @@ node_modules/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Ignore script and test files
+run_app.bat
+run_backend.psl
+run_test_api.bat
+run_test.psl
+test_api.py

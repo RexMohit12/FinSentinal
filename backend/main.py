@@ -13,7 +13,7 @@ sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'agents
 # Import the FraudDetectionAgent
 from core import FraudDetectionAgent
 
-app = FastAPI(title="Financial Fraud Detection API", 
+app = FastAPI(title="FinSentinal API", 
               description="API for detecting fraud in financial transactions",
               version="1.0.0")
 

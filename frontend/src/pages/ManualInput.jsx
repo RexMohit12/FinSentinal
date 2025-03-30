@@ -16,7 +16,9 @@ import {
   Step,
   StepLabel,
   Card,
-  CardContent
+  CardContent,
+  FormControlLabel,
+  Switch
 } from '@mui/material';
 import axios from 'axios';
 
@@ -29,163 +31,76 @@ const ManualInput = ({ addResult }) => {
 
   // Transaction data state
   const [transactionData, setTransactionData] = useState({
-    TransactionAmt: '',
-    ProductCD: 'H',
-    card1: '',
-    card2: '',
-    card3: '',
-    card5: '',
-    addr1: '',
-    dist1: '',
-    C1: '',
-    C2: '',
-    D1: '',
-    D15: '',
-    V95: '',
-    V96: '',
-    V97: '',
-    V126: '',
-    V127: '',
-    TransactionDT: Math.floor(Date.now() / 1000),
-    P_emaildomain: ''
+    TransactionAmount: '',
+    ProductCategory: 'Electronics',
+    Currency: 'USD',
+    PaymentMethod: 'Credit Card',
+    
+    // Card Information
+    CardNumber: '',
+    CardType: 'Visa',
+    CardIssuer: 'Chase',
+    CardCountry: 'US',
+    CardCVV: '',
+    CardExpiry: '',
+    
+    // Billing Information
+    BillingAddress: '',
+    BillingZIP: '',
+    BillingCity: '',
+    BillingState: '',
+    BillingCountry: 'US',
+    
+    // Device Information
+    DeviceType: 'Desktop',
+    DeviceOS: 'Windows',
+    Browser: 'Chrome',
+    ScreenResolution: '1920x1080',
+    
+    // User Information
+    UserEmail: '',
+    UserAccountAgeDays: 0,
+    
+    // Transaction History
+    TransactionsLast1Hr: 0,
+    TransactionsLast24Hr: 0,
+    AvgTransactionAmount: 0,
+    TimeSinceLastTransaction: 0,
+    
+    // Merchant Information
+    MerchantID: '',
+    MerchantCategory: 'Retail',
+    MerchantCountry: 'US',
+    IsHighRiskMerchant: false,
+    
+    // Risk Indicators
+    IPAddress: '',
+    IPCountry: 'US',
+    DistanceFromHome: 0,
+    IPIsProxy: false,
+    IsNewDevice: false,
+    IsEmailGeneric: false,
+    AmountDeviationFromAvg: 0,
+    IsHoliday: false
   });
 
-  // Transaction sequence state
-  const [transactionSequence, setTransactionSequence] = useState([
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-  ]);
-
-  // Transaction text state
-  const [transactionText, setTransactionText] = useState('');
-
-  // Network data state
-  const [networkData, setNetworkData] = useState({
-    nodes: {
-      user: {
-        transaction_count: 1,
-        total_amount: 0,
-        risk_score: 0.5,
-        age: 30,
-        is_business: 0
-      },
-      recipient: {
-        transaction_count: 1,
-        total_amount: 0,
-        risk_score: 0.5,
-        age: 365,
-        is_business: 1
-      },
-      bank: {
-        transaction_count: 1000,
-        total_amount: 1000000,
-        risk_score: 0.3,
-        age: 3650,
-        is_business: 1
-      }
-    },
-    edges: [
-      {
-        source: 'user',
-        target: 'bank',
-        amount: 0,
-        timestamp: Math.floor(Date.now() / 1000),
-        frequency: 1,
-        is_international: 0
-      },
-      {
-        source: 'bank',
-        target: 'recipient',
-        amount: 0,
-        timestamp: Math.floor(Date.now() / 1000) + 1,
-        frequency: 1,
-        is_international: 0
-      }
-    ]
-  });
-
-  // Metadata state
-  const [metadata, setMetadata] = useState({
-    user_id: 'user_' + Math.floor(Math.random() * 1000),
-    device_fingerprint: 'device_' + Math.floor(Math.random() * 1000),
-    ip_address: '192.168.1.1',
-    browser: 'Chrome',
-    login_time: new Date().toISOString(),
-    account_age_days: 30
-  });
-
-  // Handle transaction data change
-  const handleTransactionDataChange = (e) => {
-    const { name, value } = e.target;
+  // Handle form field changes
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
     setTransactionData(prev => ({
       ...prev,
-      [name]: name === 'TransactionAmt' ? parseFloat(value) || '' : value
-    }));
-
-    // Update network data edges with the transaction amount
-    if (name === 'TransactionAmt') {
-      const amount = parseFloat(value) || 0;
-      setNetworkData(prev => ({
-        ...prev,
-        edges: prev.edges.map(edge => ({
-          ...edge,
-          amount: amount
-        }))
-      }));
-    }
-  };
-
-  // Handle transaction sequence change
-  const handleSequenceChange = (index, position, value) => {
-    const newSequence = [...transactionSequence];
-    newSequence[index][position] = parseFloat(value) || 0;
-    setTransactionSequence(newSequence);
-  };
-
-  // Handle network data change
-  const handleNetworkDataChange = (nodeId, field, value) => {
-    setNetworkData(prev => ({
-      ...prev,
-      nodes: {
-        ...prev.nodes,
-        [nodeId]: {
-          ...prev.nodes[nodeId],
-          [field]: field === 'is_business' ? parseInt(value) : parseFloat(value) || 0
-        }
-      }
-    }));
-  };
-
-  // Handle edge data change
-  const handleEdgeChange = (index, field, value) => {
-    setNetworkData(prev => ({
-      ...prev,
-      edges: prev.edges.map((edge, i) => {
-        if (i === index) {
-          return {
-            ...edge,
-            [field]: field === 'is_international' ? parseInt(value) : value
-          };
-        }
-        return edge;
-      })
-    }));
-  };
-
-  // Handle metadata change
-  const handleMetadataChange = (e) => {
-    const { name, value } = e.target;
-    setMetadata(prev => ({
-      ...prev,
-      [name]: name === 'account_age_days' ? parseInt(value) || 0 : value
+      [name]: type === 'checkbox' ? checked : value
     }));
   };
 
   // Steps for the stepper
-  const steps = ['Transaction Details', 'Additional Information', 'Review & Submit'];
+  const steps = [
+    'Transaction Details',
+    'Card Information',
+    'Billing Details',
+    'Device & User Info',
+    'Review & Submit'
+  ];
 
   // Handle next step
   const handleNext = () => {
@@ -203,322 +118,329 @@ const ManualInput = ({ addResult }) => {
     setError('');
 
     try {
-      // Update transaction amount in network data
-      const updatedNetworkData = {
-        ...networkData,
-        edges: networkData.edges.map(edge => ({
-          ...edge,
-          amount: transactionData.TransactionAmt
-        }))
-      };
+      const response = await axios.post('http://localhost:8000/api/transactions', {
+        ...transactionData,
+        TransactionDateTime: new Date().toISOString(),
+        TransactionID: Math.floor(Math.random() * 90000000) + 10000000,
+        UserID: `USER_${Math.floor(Math.random() * 900000) + 100000}`
+      });
 
-      // Prepare request payload
-      const payload = {
-        transaction_data: transactionData,
-        transaction_sequence: transactionSequence,
-        transaction_text: transactionText,
-        network_data: updatedNetworkData,
-        metadata: metadata
-      };
-
-      // Send request to API
-      const response = await axios.post('/api/detect-fraud', payload);
-      
-      // Add timestamp to result
-      const resultWithTimestamp = {
-        ...response.data,
-        timestamp: new Date().toISOString(),
-        transaction_amount: transactionData.TransactionAmt,
-        transaction_text: transactionText
-      };
-
-      // Add result to results list
-      addResult(resultWithTimestamp);
-      
-      // Navigate to results page
+      addResult(response.data);
       navigate('/results');
     } catch (err) {
-      console.error('Error submitting transaction:', err);
-      setError(err.response?.data?.detail || 'An error occurred while processing the transaction');
+      setError(err.response?.data?.message || 'An error occurred while submitting the transaction');
     } finally {
       setLoading(false);
     }
   };
 
-  // Render transaction data form
-  const renderTransactionDataForm = () => (
-    <>
-      <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
-        Transaction Details
-      </Typography>
-      <Grid container spacing={3}>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            required
-            fullWidth
-            label="Transaction Amount"
-            name="TransactionAmt"
-            value={transactionData.TransactionAmt}
-            onChange={handleTransactionDataChange}
-            type="number"
-            variant="outlined"
-            margin="normal"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            select
-            fullWidth
-            label="Product Code"
-            name="ProductCD"
-            value={transactionData.ProductCD}
-            onChange={handleTransactionDataChange}
-            variant="outlined"
-            margin="normal"
-          >
-            <MenuItem value="H">High Value</MenuItem>
-            <MenuItem value="C">Credit</MenuItem>
-            <MenuItem value="S">Standard</MenuItem>
-            <MenuItem value="R">Recurring</MenuItem>
-            <MenuItem value="W">Withdrawal</MenuItem>
-          </TextField>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            fullWidth
-            label="Card ID 1"
-            name="card1"
-            value={transactionData.card1}
-            onChange={handleTransactionDataChange}
-            type="number"
-            variant="outlined"
-            margin="normal"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            fullWidth
-            label="Card ID 2"
-            name="card2"
-            value={transactionData.card2}
-            onChange={handleTransactionDataChange}
-            type="number"
-            variant="outlined"
-            margin="normal"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            fullWidth
-            label="Card ID 3"
-            name="card3"
-            value={transactionData.card3}
-            onChange={handleTransactionDataChange}
-            type="number"
-            variant="outlined"
-            margin="normal"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            fullWidth
-            label="Card ID 5"
-            name="card5"
-            value={transactionData.card5}
-            onChange={handleTransactionDataChange}
-            type="number"
-            variant="outlined"
-            margin="normal"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            fullWidth
-            label="Address ID"
-            name="addr1"
-            value={transactionData.addr1}
-            onChange={handleTransactionDataChange}
-            type="number"
-            variant="outlined"
-            margin="normal"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            fullWidth
-            label="Distance"
-            name="dist1"
-            value={transactionData.dist1}
-            onChange={handleTransactionDataChange}
-            type="number"
-            variant="outlined"
-            margin="normal"
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            fullWidth
-            label="Email Domain"
-            name="P_emaildomain"
-            value={transactionData.P_emaildomain}
-            onChange={handleTransactionDataChange}
-            variant="outlined"
-            margin="normal"
-            placeholder="example.com"
-          />
-        </Grid>
-      </Grid>
-    </>
-  );
-
-  // Render additional information form
-  const renderAdditionalInfoForm = () => (
-    <>
-      <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
-        Transaction Description
-      </Typography>
-      <TextField
-        fullWidth
-        multiline
-        rows={4}
-        label="Transaction Description"
-        value={transactionText}
-        onChange={(e) => setTransactionText(e.target.value)}
-        variant="outlined"
-        margin="normal"
-        placeholder="Describe the transaction (e.g., 'International wire transfer to XYZ Holdings')"
-      />
-
-      <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
-        Transaction Sequence (Previous Transactions)
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        Enter details of the 5 most recent transactions (amount and other attributes)
-      </Typography>
-      
-      {transactionSequence.map((seq, index) => (
-        <Grid container spacing={2} key={index} sx={{ mb: 2 }}>
-          <Grid item xs={12} sm={3}>
-            <TextField
-              fullWidth
-              label={`Transaction ${index + 1} Amount`}
-              value={seq[0]}
-              onChange={(e) => handleSequenceChange(index, 0, e.target.value)}
-              type="number"
-              variant="outlined"
-              size="small"
-            />
+  // Render step content
+  const getStepContent = (step) => {
+    switch (step) {
+      case 0:
+        return (
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Transaction Amount"
+                name="TransactionAmount"
+                type="number"
+                value={transactionData.TransactionAmount}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                select
+                label="Currency"
+                name="Currency"
+                value={transactionData.Currency}
+                onChange={handleChange}
+              >
+                {['USD', 'EUR', 'GBP', 'JPY', 'CAD'].map((currency) => (
+                  <MenuItem key={currency} value={currency}>{currency}</MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                select
+                label="Product Category"
+                name="ProductCategory"
+                value={transactionData.ProductCategory}
+                onChange={handleChange}
+              >
+                {['Electronics', 'Clothing', 'Food', 'Travel', 'Entertainment'].map((category) => (
+                  <MenuItem key={category} value={category}>{category}</MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                select
+                label="Payment Method"
+                name="PaymentMethod"
+                value={transactionData.PaymentMethod}
+                onChange={handleChange}
+              >
+                {['Credit Card', 'Debit Card', 'PayPal', 'Bank Transfer'].map((method) => (
+                  <MenuItem key={method} value={method}>{method}</MenuItem>
+                ))}
+              </TextField>
+            </Grid>
           </Grid>
-          <Grid item xs={12} sm={9}>
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              {[1, 2, 3, 4].map((pos) => (
-                <TextField
-                  key={pos}
-                  label={`Attr ${pos}`}
-                  value={seq[pos]}
-                  onChange={(e) => handleSequenceChange(index, pos, e.target.value)}
-                  type="number"
-                  variant="outlined"
-                  size="small"
-                  sx={{ width: '23%' }}
-                />
-              ))}
-            </Box>
-          </Grid>
-        </Grid>
-      ))}
-    </>
-  );
+        );
 
-  // Render review and submit form
-  const renderReviewForm = () => (
-    <>
-      <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
-        Review Transaction Details
-      </Typography>
-      
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
-          <Card variant="outlined" sx={{ mb: 3 }}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Transaction Data
-              </Typography>
-              <Typography variant="body1">
-                Amount: ${transactionData.TransactionAmt}
-              </Typography>
-              <Typography variant="body1">
-                Product: {transactionData.ProductCD}
-              </Typography>
-              <Typography variant="body1">
-                Email Domain: {transactionData.P_emaildomain}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        
-        <Grid item xs={12} md={6}>
-          <Card variant="outlined" sx={{ mb: 3 }}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Transaction Description
-              </Typography>
-              <Typography variant="body1">
-                {transactionText || 'No description provided'}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
-      
-      {error && (
-        <Alert severity="error" sx={{ mt: 2, mb: 2 }}>
-          {error}
-        </Alert>
-      )}
-      
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
-        <Button onClick={handleBack} variant="outlined">
-          Back
-        </Button>
-        <Button
-          variant="contained"
-          onClick={handleSubmit}
-          disabled={loading}
-          sx={{
-            background: 'linear-gradient(90deg, #4caf50, #2196f3)',
-            '&:hover': {
-              background: 'linear-gradient(90deg, #087f23, #0069c0)'
-            }
-          }}
-        >
-          {loading ? <CircularProgress size={24} /> : 'Submit for Analysis'}
-        </Button>
-      </Box>
-    </>
-  );
+      case 1:
+        return (
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Card Number"
+                name="CardNumber"
+                value={transactionData.CardNumber}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                select
+                label="Card Type"
+                name="CardType"
+                value={transactionData.CardType}
+                onChange={handleChange}
+              >
+                {['Visa', 'MasterCard', 'American Express', 'Discover'].map((type) => (
+                  <MenuItem key={type} value={type}>{type}</MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <TextField
+                fullWidth
+                label="CVV"
+                name="CardCVV"
+                type="number"
+                value={transactionData.CardCVV}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <TextField
+                fullWidth
+                label="Expiry (MM/YY)"
+                name="CardExpiry"
+                value={transactionData.CardExpiry}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <TextField
+                fullWidth
+                select
+                label="Card Country"
+                name="CardCountry"
+                value={transactionData.CardCountry}
+                onChange={handleChange}
+              >
+                {['US', 'UK', 'CA', 'DE', 'FR'].map((country) => (
+                  <MenuItem key={country} value={country}>{country}</MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+          </Grid>
+        );
+
+      case 2:
+        return (
+          <Grid container spacing={3}>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Billing Address"
+                name="BillingAddress"
+                value={transactionData.BillingAddress}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="ZIP Code"
+                name="BillingZIP"
+                value={transactionData.BillingZIP}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="City"
+                name="BillingCity"
+                value={transactionData.BillingCity}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="State"
+                name="BillingState"
+                value={transactionData.BillingState}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                select
+                label="Country"
+                name="BillingCountry"
+                value={transactionData.BillingCountry}
+                onChange={handleChange}
+              >
+                {['US', 'UK', 'CA', 'DE', 'FR'].map((country) => (
+                  <MenuItem key={country} value={country}>{country}</MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+          </Grid>
+        );
+
+      case 3:
+        return (
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                select
+                label="Device Type"
+                name="DeviceType"
+                value={transactionData.DeviceType}
+                onChange={handleChange}
+              >
+                {['Mobile', 'Desktop', 'Tablet'].map((type) => (
+                  <MenuItem key={type} value={type}>{type}</MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                select
+                label="Operating System"
+                name="DeviceOS"
+                value={transactionData.DeviceOS}
+                onChange={handleChange}
+              >
+                {['iOS', 'Android', 'Windows', 'macOS', 'Linux'].map((os) => (
+                  <MenuItem key={os} value={os}>{os}</MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Email"
+                name="UserEmail"
+                type="email"
+                value={transactionData.UserEmail}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="IP Address"
+                name="IPAddress"
+                value={transactionData.IPAddress}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={transactionData.IsNewDevice}
+                    onChange={handleChange}
+                    name="IsNewDevice"
+                  />
+                }
+                label="New Device"
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={transactionData.IPIsProxy}
+                    onChange={handleChange}
+                    name="IPIsProxy"
+                  />
+                }
+                label="IP is Proxy"
+              />
+            </Grid>
+          </Grid>
+        );
+
+      case 4:
+        return (
+          <Grid container spacing={3}>
+            <Grid item xs={12}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>Transaction Summary</Typography>
+                  <Grid container spacing={2}>
+                    <Grid item xs={6}>
+                      <Typography variant="subtitle2">Amount:</Typography>
+                      <Typography>{transactionData.TransactionAmount} {transactionData.Currency}</Typography>
+                    </Grid>
+                    <Grid item xs={6}>
+                      <Typography variant="subtitle2">Payment Method:</Typography>
+                      <Typography>{transactionData.PaymentMethod}</Typography>
+                    </Grid>
+                    <Grid item xs={6}>
+                      <Typography variant="subtitle2">Card Number:</Typography>
+                      <Typography>{transactionData.CardNumber}</Typography>
+                    </Grid>
+                    <Grid item xs={6}>
+                      <Typography variant="subtitle2">Billing Address:</Typography>
+                      <Typography>{transactionData.BillingAddress}</Typography>
+                    </Grid>
+                  </Grid>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
+        );
+
+      default:
+        return 'Unknown step';
+    }
+  };
 
   return (
-    <Box>
-      <Paper 
-        elevation={0} 
-        sx={{ 
-          p: 4, 
-          mb: 4, 
-          borderRadius: 3,
-          background: 'linear-gradient(135deg, rgba(33, 150, 243, 0.1), rgba(76, 175, 80, 0.1))'
-        }}
-      >
-        <Typography variant="h4" component="h1" fontWeight="bold" gutterBottom>
-          Manual Transaction Input
-        </Typography>
-        <Typography variant="body1">
-          Enter transaction details manually to analyze for potential fraud.
-        </Typography>
-      </Paper>
-
-      <Paper sx={{ p: 3, borderRadius: 2 }}>
-        <Stepper activeStep={activeStep} sx={{ pt: 2, pb: 4 }}>
+    <Box sx={{ width: '100%' }}>
+      <Paper sx={{ p: 3 }}>
+        <Typography variant="h4" gutterBottom>Manual Transaction Input</Typography>
+        <Stepper activeStep={activeStep} sx={{ my: 4 }}>
           {steps.map((label) => (
             <Step key={label}>
               <StepLabel>{label}</StepLabel>
@@ -526,35 +448,54 @@ const ManualInput = ({ addResult }) => {
           ))}
         </Stepper>
 
-        <Divider sx={{ mb: 3 }} />
+        {error && (
+          <Alert severity="error" sx={{ mb: 3 }}>
+            {error}
+          </Alert>
+        )}
 
-        {activeStep === 0 && renderTransactionDataForm()}
-        {activeStep === 1 && renderAdditionalInfoForm()}
-        {activeStep === 2 && renderReviewForm()}
-
-        {activeStep !== 2 && (
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
+        <Box sx={{ mt: 2 }}>
+          {getStepContent(activeStep)}
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
             <Button
-              onClick={handleBack}
               disabled={activeStep === 0}
-              variant="outlined"
+              onClick={handleBack}
+              sx={{ mr: 1 }}
             >
               Back
             </Button>
-            <Button 
-              variant="contained" 
-              onClick={handleNext}
-              sx={{
-                background: 'linear-gradient(90deg, #4caf50, #2196f3)',
-                '&:hover': {
-                  background: 'linear-gradient(90deg, #087f23, #0069c0)'
-                }
-              }}
-            >
-              Next
-            </Button>
+            {activeStep === steps.length - 1 ? (
+              <Button
+                variant="contained"
+                onClick={handleSubmit}
+                disabled={loading}
+                sx={{
+                  bgcolor: theme.palette.primary.main,
+                  color: 'white',
+                  '&:hover': {
+                    bgcolor: theme.palette.primary.dark,
+                  },
+                }}
+              >
+                {loading ? <CircularProgress size={24} /> : 'Submit'}
+              </Button>
+            ) : (
+              <Button
+                variant="contained"
+                onClick={handleNext}
+                sx={{
+                  bgcolor: theme.palette.primary.main,
+                  color: 'white',
+                  '&:hover': {
+                    bgcolor: theme.palette.primary.dark,
+                  },
+                }}
+              >
+                Next
+              </Button>
+            )}
           </Box>
-        )}
+        </Box>
       </Paper>
     </Box>
   );

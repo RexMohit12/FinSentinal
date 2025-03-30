@@ -40,10 +40,10 @@ const MainLayout = () => {
   };
 
   const menuItems = [
-    { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
+    { text: 'Home', icon: <DashboardIcon />, path: '/' },
     { text: 'Manual Input', icon: <InputIcon />, path: '/manual-input' },
     { text: 'Automated Input', icon: <AutoGraphIcon />, path: '/automated-input' },
-    { text: 'Results', icon: <AssessmentIcon />, path: '/results' },
+    { text: 'Dashboard', icon: <AssessmentIcon />, path: '/results' },
   ];
 
   return (
@@ -69,13 +69,14 @@ const MainLayout = () => {
             </IconButton>
           )}
           <Typography
-            variant="h6"
+            variant="h5"
             noWrap
             component="div" 
             sx={{ 
               fontWeight: 'bold',
               letterSpacing: '0.5px',
-              mr: 4
+              mr: 4,
+              fontSize: '1.4rem'
             }}
             className="gradient-text"
           >
@@ -84,7 +85,7 @@ const MainLayout = () => {
           
           {/* Horizontal Navigation */}
           {!isMobile && (
-            <Box sx={{ display: 'flex', flexGrow: 1 }}>
+            <Box sx={{ display: 'flex', flexGrow: 1, justifyContent: 'center' }}>
               {menuItems.map((item) => (
                 <Button
                   key={item.text}
@@ -92,10 +93,11 @@ const MainLayout = () => {
                   startIcon={item.icon}
                   onClick={() => navigate(item.path)}
                   sx={{
-                    mx: 1,
+                    mx: 1.5,
                     py: 1,
                     borderRadius: 1,
                     textTransform: 'none',
+                    fontSize: '1.25rem',
                     fontWeight: location.pathname === item.path ? 600 : 400,
                     backgroundColor: location.pathname === item.path ? 
                       'rgba(76, 175, 80, 0.1)' : 'transparent',

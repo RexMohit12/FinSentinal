@@ -11,16 +11,28 @@ import ManualInput from './pages/ManualInput';
 import AutomatedInput from './pages/AutomatedInput';
 import Results from './pages/Results';
 
+// Components
+import WelcomeAnimation from './components/WelcomeAnimation';
+
 function App() {
   const [results, setResults] = useState([]);
+  const [showWelcomeAnimation, setShowWelcomeAnimation] = useState(true);
   
   // Function to add new result to the results array
   const addResult = (result) => {
     setResults(prev => [result, ...prev]);
   };
+  
+  // Function to handle when welcome animation completes
+  const handleAnimationComplete = () => {
+    setShowWelcomeAnimation(false);
+  };
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      {/* Welcome Animation */}
+      {showWelcomeAnimation && <WelcomeAnimation onComplete={handleAnimationComplete} />}
+      
       <Routes>
         <Route path="/" element={<MainLayout />}>
           <Route index element={<Dashboard />} />
