@@ -1,0 +1,41 @@
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# Environment variables
+.env
+
+# Model files - excluding as requested
+models/
+*.pth
+*.h5
+*.pkl
+*.json
+
+# Node modules
+node_modules/
+
+# Build files
+/build
+/dist
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
