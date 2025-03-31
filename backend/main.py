@@ -3,8 +3,18 @@ from pydantic import BaseModel
 from core import get_compliance_risk
 from ensemble import FraudEnsembleModel
 import numpy as np
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Initialize the ensemble model
 ensemble_model = FraudEnsembleModel()
